@@ -10,19 +10,22 @@ import urllib.request
 from PIL import Image
 import configparser
 
-config = configparser.ConfigParser()
-config.read('config.ini')
-
-key = config.get('Main', 'key')
-
 pp = pprint.PrettyPrinter(indent = 4)
 
-url = 'http://api.discogs.com/releases/{0}?token={1}'
-
-save_file = str(config.read('Main', 'save_file'))
-
-headers = {}
-headers['User-Agent'] = str(config.read('Main' 'user_agent'))
+# Settings
+def read_settings():
+    config = configparser.ConfigParser()
+    config.read('config.ini')
+    
+    settings = {}
+    settings['key'] = str(config['Main']['key'])
+    settings['save_file'] = str(config['Main']['save_file'])
+    settings['starting_id'] = int(config['Settings']['starting_id'])
+    
+    settings['headers'] = {
+        'User-Agent': str(config['Main']['user_agent'])
+    }
+    return settings
 
 def add_attribute(attribute, save_attribute, data, release):
     if attribute in data:
@@ -151,25 +154,26 @@ def get_release_info(data):
     # If everything was sucessfully got, return release
     return (True, release)
 
-def get_release(release_id):
+def get_release(release_id, key, headers):
+    url = 'http://api.discogs.com/releases/{0}?token={1}'
     # Get a random release
     r = requests.get(url.format(release_id, key), headers = headers)
     if r.status_code == 200:
         j = json.loads(r.text)
         return get_release_info(j)
 
-def get_releases():
+def get_releases(settings):
     accepted_releases = set()
     releases = []
-    amount_of_releases = 7693686
     amount = 0
-    unsuitable_releses_in_a_row = 0
-    release_id = 64
+    
+    release_id = settings['starting_id']
+    
     while True:
         old_amount = amount
         # Poor man's throttle
         time.sleep(0.25)
-        release = get_release(release_id)
+        release = get_release(release_id, settings['key'], settings['headers'])
         if release != None and release[0]:
             print ("Found suitable release!")
             releases.append(release[1])
@@ -182,7 +186,6 @@ def get_releases():
             releases = []
             print (accepted_releases)
         release_id += 1
-    print('Writing releases to file...')
-    write_to_file(releases)
-
-get_releases()
+# Script Start
+settings = read_settings()
+get_releases(settings)
