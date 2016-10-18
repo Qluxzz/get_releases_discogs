@@ -19,12 +19,10 @@ pp = pprint.PrettyPrinter(indent = 4)
 
 url = 'http://api.discogs.com/releases/{0}?token={1}'
 
+save_file = str(config.read('Main', 'save_file'))
 
-save_file = 'releases.json'
-
-headers = {
-    'User-Agent': 'GetReleases/0.1'
-}
+headers = {}
+headers['User-Agent'] = str(config.read('Main' 'user_agent'))
 
 def add_attribute(attribute, save_attribute, data, release):
     if attribute in data:
