@@ -91,15 +91,23 @@ def convert_image(path):
     image.save(path, "PNG", progressive=False)
     
 def get_num(str):
-    str = '10-10-2010'
-    year = ''
-    # Loop through string
-    for ele in str:
-        if ele.isdigit():
-            if int(year + ele) < 9999:
-                year += ele
-    print(year)
-
+    if len(str) == 4:
+        return int(str)
+    numbers = []
+    number = ''
+    for char in str:
+        if char.isdigit():
+            number += char
+        else:
+            numbers.append(number)
+            number = ''
+    numbers.append(number)
+    
+    for number in numbers:
+        number = int(number)
+        if number >= 1000 and number <= 9999:
+            return number
+            
 def get_images(images, release_id):
     save_file = 'img/{0}.jpg'.format(release_id)
     for image in images:
