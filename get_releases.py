@@ -9,6 +9,7 @@ import time
 import urllib.request
 from PIL import Image
 import configparser
+from datetime import datetime
 
 pp = pprint.PrettyPrinter(indent = 4)
 
@@ -197,7 +198,7 @@ def get_releases(settings):
         add = release != None and release[0]
 
         if add:
-            print ("Found suitable release!")
+            print ("Found suitable release! " + datetime.now().strftime("%Y-%m-%d %H:%M:%S"))
             releases.append(release[1])
             accepted_releases.add(release_id)
             amount += 1
