@@ -192,7 +192,14 @@ def get_releases(settings):
         old_amount = amount
         # Poor man's throttle
         time.sleep(0.25)
-        release = get_release(release_id, settings)
+        
+        release = (False, {})
+        
+        try:
+            release = get_release(release_id, settings)
+        except HTTPError:
+            print("Error happened")
+        
         # Check if we're supposed to write current releases to file
         update = amount % 10 == 0 and amount != 0 and old_amount != amount
         add = release != None and release[0]
