@@ -171,27 +171,25 @@ def get_releases(settings):
     
     while True:
         # Poor man's throttle
-        #time.sleep(0.25)
+        time.sleep(0.25)
         release = get_release(release_id, settings)
         # Check if we're supposed to write current releases to file
-        update = False
-
-        if release != None and release[0]:
+        if release[0]:
+            if failed_release != -1:
+                if release_id - 1 - failed_release > 1:
+                    print("Release ID {0}-{1} were not interesting".format(failed_release, release_id - 1))
+                else:
+                    print("Release ID {0} was not intereseting".format(failed_release))
+                failed_release = -1
+        
             print ("Found suitable release! " + datetime.now().strftime("%Y-%m-%d %H:%M:%S"))
             releases.append(release[1])
             accepted_releases.add(release_id)
             amount += 1
-            if failed_release != -1:
-                print("Try to print release id")
-                print("Release ID {0}-{1} were not interesting".format(failed_release, release_id - 1))
-                failed_release = -1
+            
         else:
             if failed_release == -1:
                 failed_release = release_id
-        if update:
-            write_to_file(releases, settings['save_file'])
-            # Reset releases
-            releases = []
         release_id += 1
 # Script Start
 settings = read_settings()
