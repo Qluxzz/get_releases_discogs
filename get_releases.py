@@ -157,6 +157,8 @@ def get_release(release_id, settings):
     if r.status_code == 200:
         j = json.loads(r.text)
         return get_release_info(j)
+    else:
+        return (False, {})
 
 def get_releases(settings):
     accepted_releases = set()
