@@ -145,12 +145,10 @@ def get_release_info(data):
         release['tracklist'] = get_track_list(data)
         # Images
         get_images(data)
-        # If everything was sucessfully got, return release
-        return (True, release)
     except Exception as err:
-        #exc_type, exc_value, exc_traceback = sys.exc_info()
-        #traceback.print_tb(exc_traceback)
-        return (False, {})
+        return (False, release)
+    else:
+        return (True, release)
 
 def get_release(release_id, settings):
     url = 'http://api.discogs.com/releases/{0}?token={1}'
