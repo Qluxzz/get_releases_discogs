@@ -125,6 +125,7 @@ def get_images(data):
                 if width >= 500 and height >= 500 and ratio == 1:
                     urllib.request.urlretrieve(image['resource_url'], save_file)
                     convert_image(save_file)
+                    return True
     raise Exception('No images were found')
 
 def get_release_info(data):
