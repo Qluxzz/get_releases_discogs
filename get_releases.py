@@ -14,20 +14,14 @@ from datetime import datetime
 pp = pprint.PrettyPrinter(indent = 4)
 
 # Settings
-def read_settings():
-    config = configparser.ConfigParser()
-    config.read('config.ini')
-    
-    settings = {}
-    settings['key'] = str(config['Main']['key'])
-    
-    settings['save_file'] = str(config['Main']['save_file'])
-    settings['starting_id'] = int(config['Settings']['starting_id'])
-    
-    settings['headers'] = {
-        'User-Agent': str(config['Main']['user_agent'])
-    }
-    return settings
+config = configparser.ConfigParser()
+config.read('config.ini')
+
+key = str(config['Main']['key'])
+save_file = str(config['Main']['save_file'])
+release_id = int(config['Settings']['starting_id'])
+
+user_agent = {'User-Agent': str(config['Main']['user_agent'])}
 
 def add_attribute(attribute, save_attribute, data, release):
     if attribute in data:
@@ -118,14 +112,12 @@ def get_images(data):
         for image in images:
             if image['type'] == 'primary':
                 # If the ratio is a perfect square
-                width = image['width']
-                height = image['height']
-                ratio = width / height
-                
-                if width >= 500 and height >= 500 and ratio == 1:
+                size = (image['width'], image['height'])
+                if size[0] >= 500 and size[0] / size[1] == 1:
                     urllib.request.urlretrieve(image['resource_url'], save_file)
                     convert_image(save_file)
-                    return True
+                    print("Image {0} was found!".format(data['id']))
+                    return
     raise Exception('No images were found')
 
 def get_release_info(data):
@@ -148,49 +140,4 @@ def get_release_info(data):
     except Exception as err:
         return (False, release)
     else:
-        return (True, release)
-
-def get_release(release_id, settings):
-    url = 'http://api.discogs.com/releases/{0}?token={1}'
-    # Get a random release
-    r = requests.get(url.format(release_id, settings['key']), headers = settings['headers'])
-    if r.status_code == 200:
-        j = json.loads(r.text)
-        return get_release_info(j)
-    else:
-        return (False, {})
-
-def get_releases(settings):
-    accepted_releases = set()
-    releases = []
-    amount = 0
-    
-    release_id = settings['starting_id']
-    
-    failed_release = -1
-    
-    while True:
-        # Poor man's throttle
-        time.sleep(0.25)
-        release = get_release(release_id, settings)
-        # Check if we're supposed to write current releases to file
-        if release[0]:
-            if failed_release != -1:
-                if release_id - 1 - failed_release > 1:
-                    print("Release ID {0}-{1} were not interesting".format(failed_release, release_id - 1))
-                else:
-                    print("Release ID {0} was not intereseting".format(failed_release))
-                failed_release = -1
-        
-            print ("Found suitable release! " + datetime.now().strftime("%Y-%m-%d %H:%M:%S"))
-            releases.append(release[1])
-            accepted_releases.add(release_id)
-            amount += 1
-            
-        else:
-            if failed_release == -1:
-                failed_release = release_id
-        release_id += 1
-# Script Start
-settings = read_settings()
-get_releases(settings)
+        return (True, release) 
