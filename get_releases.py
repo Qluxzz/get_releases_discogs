@@ -8,20 +8,9 @@ import random
 import time
 import urllib.request
 from PIL import Image
-import configparser
 from datetime import datetime
 
 pp = pprint.PrettyPrinter(indent = 4)
-
-# Settings
-config = configparser.ConfigParser()
-config.read('config.ini')
-
-key = str(config['Main']['key'])
-save_file = str(config['Main']['save_file'])
-release_id = int(config['Settings']['starting_id'])
-
-user_agent = {'User-Agent': str(config['Main']['user_agent'])}
 
 def add_attribute(attribute, save_attribute, data, release):
     if attribute in data:
