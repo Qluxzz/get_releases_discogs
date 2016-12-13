@@ -20,11 +20,16 @@ def add_attribute(attribute, save_attribute, data, release):
 
 def write_to_file(releases, save_file):
     print('Writing releases to file...')
-    with open(save_file) as file:
-        data = json.load(file)
+    data = {}
+    data["records"] = []
+    # Check if file exists
+    # If it does, load the existing data
+    if os.path.exists(save_file) and os.stat(save_file).st_size != 0:
+        with open(save_file, 'r') as file:
+            data = json.load(file)
     # Update the current file with the new releases
     for release in releases:
-        data.append(release)
+        data["records"].append(release)
     with open(save_file, 'w+') as f:
         json.dump(data, f, indent = 4)
     
