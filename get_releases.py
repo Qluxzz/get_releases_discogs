@@ -113,6 +113,7 @@ def get_release_info(data):
     release = {}
     try:
         check_if_vinyl(data)
+        add_attribute('id', 'id', data, release)
         add_attribute('title', 'title', data, release)
         add_attribute('country', 'country', data, release)
         add_attribute('released', 'year', data, release)
