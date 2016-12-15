@@ -54,15 +54,6 @@ def get_track_list(data):
         tracks.append(track)
     return tracks
 
-def get_genres(data):
-    if 'genres' not in data:
-        raise Exception('Genre(s) were not found in data')
-    genres = data['genres']
-    list = []
-    for genre in genres:
-        list.append(genre)
-    return list
-    
 def get_artists(data):
     if 'artists' not in data:
         raise Exception('Artist(s) were not found in data')
@@ -135,7 +126,9 @@ def get_release_info(data):
         # Artist(s)
         release['artists'] = get_artists(data)
         # Genres
-        release['genres'] = get_genres(data)
+        release['genres'] = data['genres']
+        # Styles
+        release['styles'] = data['styles']
         # Tracklist
         release['tracklist'] = get_track_list(data)
         # Images
