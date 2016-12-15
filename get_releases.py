@@ -1,16 +1,21 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
-
 import requests
 import json
 import pprint
 import random
 import time
 import urllib.request
+import os
 from PIL import Image
 from datetime import datetime
+from pymongo import MongoClient
 
 pp = pprint.PrettyPrinter(indent = 4)
+
+client = MongoClient()
+db = client.albums
+collection = db.releases
 
 def add_attribute(attribute, save_attribute, data, release):
     if attribute in data:
@@ -32,6 +37,9 @@ def write_to_file(releases, save_file):
         data["records"].append(release)
     with open(save_file, 'w+') as f:
         json.dump(data, f, indent = 4)
+        
+def save_to_database(releases):
+    collection.insert_many(releases)
     
 def get_track_list(data):
     if 'tracklist' not in data:
