@@ -23,18 +23,42 @@ def add_attribute(attribute, save_attribute, data, release):
     else:
         raise Exception('Attribute {0} not found in release'.format(attribute))
 
+def add_unique_to_dict_list(dict_list, value):
+    for d in dict_list:
+        if value == d["name"]:
+            return
+    dict_list.append({"id": len(dict_list), "name": value})
+        
 def write_to_file(releases, save_file):
     print('Writing releases to file...')
+    
     data = {}
-    data["records"] = []
+    
     # Check if file exists
     # If it does, load the existing data
     if os.path.exists(save_file) and os.stat(save_file).st_size != 0:
         with open(save_file, 'r') as file:
             data = json.load(file)
+            
+    if "artists" not in data:
+        data["artists"] = []
+    
+    if "genres" not in data:
+        data["genres"] = []
+        
+    artists = data["artists"]
+    genres = data["genres"]
+    
     # Update the current file with the new releases
     for release in releases:
-        data["records"].append(release)
+        for artist in release["artists"]:
+            if artist not in artists:
+                artists.append(artist)
+                
+        for genre in release["genres"]:
+            if genre not in genres:
+                genres.append(genre)
+        
     with open(save_file, 'w+') as f:
         json.dump(data, f, indent = 4)
         
