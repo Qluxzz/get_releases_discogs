@@ -39,7 +39,10 @@ def process_data(threadName, q):
             try:
                 r = requests.get(url.format(data), headers = {'User-Agent': 'GetReleases/0.1'})
                 if r.status_code == 200:
-                    get_releases.get_release_info(json.loads(r.text))
+                    release = get_releases.get_release_info(json.loads(r.text))
+                    if release[0]:
+                        releases.append(release[1])
+                    
                 elif r.status_code == 429:
                     print("Too Many Requests!")
                     time.sleep(60)
@@ -66,6 +69,14 @@ workQueue = queue.Queue(worksPerPass)
 threads = []
 threadID = 1
 
+records = []
+with open("records.txt") as file:
+    records = file.readlines()
+    
+print (len(records))
+
+current_index = 0
+    
 # Create new threads
 for thread_name in thread_list:
     thread = my_thread(threadID, thread_name, workQueue)
@@ -75,16 +86,29 @@ for thread_name in thread_list:
 
 while True:
     # Fill the queue
-    queueLock.acquire()
-    for x in range(releaseID, releaseID + worksPerPass):
-        workQueue.put(x)
+    queueLock.acquire() 
+    
+    max_index = current_index + worksPerPass
+    
+    if current_index + worksPerPass > len(records):
+        max_index = len(records)
+    
+    for x in range(current_index, max_index):
+        workQueue.put(records[x])
     queueLock.release()
 
+    releases = []
+    
     # Wait for queue to empty
     while not workQueue.empty():
         pass
-    print("Work queue has processed {0}-{1}".format(releaseID, releaseID + worksPerPass))
-    releaseID += worksPerPass + 1
+    print("{0}: Work queue has processed {1}-{2}, found {3} releases".format(datetime.now(), current_index, max_index, len(releases)))
+    
+    # Save releases to file
+    if len(releases) > 0:
+        get_releases.write_to_file(releases, "releases.json")
+    
+    current_index += worksPerPass + 1
 # Notify threads it's time to exit
 exitFlag = 1
 
